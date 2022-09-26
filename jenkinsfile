@@ -14,8 +14,10 @@ pipeline
                     branch: 'REL_1.0'
             }
             steps
-             {
-                sh 'mvn package'
+              script
+            { 
+                sh '/usr/share/maven/bin/mvn package'
             }
+        }
     }
 }
