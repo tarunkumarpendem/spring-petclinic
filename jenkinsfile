@@ -13,11 +13,18 @@ pipeline
                 git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git', 
                     branch: 'REL_1.0'
             }
+        }    
+        stage('build')
+        {   
             steps
-              script
-            { 
+            {
+               script
+               { 
                 sh '/usr/share/maven/bin/mvn package'
+               }
+            
             }
+              
         }
     }
 }
