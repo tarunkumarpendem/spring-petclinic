@@ -1,0 +1,21 @@
+pipeline
+{
+    agent 
+    { 
+        label 'ubuntu-spc'
+    }
+    stages 
+    {
+        stage('package') 
+        {
+            steps 
+            {
+                git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git', 
+                    branch: 'REL_1.0'
+            }
+            steps
+             {
+                sh 'mvn package'
+            }
+    }
+}
