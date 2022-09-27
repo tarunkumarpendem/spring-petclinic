@@ -1,0 +1,20 @@
+node('ubuntu-spc') 
+{
+    stage('clone') 
+    {
+    git branch: 'REL_1.0', credentialsId: 'Ubuntu-Node', url: 'https://github.com/tarunkumarpendem/spring-petclinic.git'
+   }
+   stage('package') 
+   {
+    sh 'mvn package'
+   }
+   stage('archive_artifact') 
+   {
+    archiveArtifacts artifacts: '**/target/*.jar', followSymlinks: false
+   }
+   stage('junit') 
+   {
+    step([$class: 'JUnitResultArchiver', checksName: '', testResults: '**/surefire-reports/*.xml'])
+   }
+    
+}
