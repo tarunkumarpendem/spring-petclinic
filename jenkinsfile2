@@ -15,6 +15,5 @@ node('ubuntu-spc')
    stage('junit') 
    {
     step([$class: 'JUnitResultArchiver', checksName: '', testResults: '**/surefire-reports/*.xml'])
-   }
-    
+   } 
 }
