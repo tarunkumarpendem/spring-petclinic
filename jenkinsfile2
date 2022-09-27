@@ -2,7 +2,9 @@ node('ubuntu-spc')
 {
     stage('clone') 
     {
-    git branch: 'REL_1.0', credentialsId: 'Ubuntu-Node', url: 'https://github.com/tarunkumarpendem/spring-petclinic.git'
+    git branch: 'REL_1.0', 
+        credentialsId: 'Ubuntu-Node', 
+        url: 'https://github.com/tarunkumarpendem/spring-petclinic.git'
    }
    stage('package') 
    {
@@ -10,7 +12,8 @@ node('ubuntu-spc')
    }
    stage('archive_artifact') 
    {
-    archiveArtifacts artifacts: '**/target/*.jar', followSymlinks: false
+    archiveArtifacts artifacts: '**/target/*.jar', 
+                     followSymlinks: false
    }
    stage('junit') 
    {
