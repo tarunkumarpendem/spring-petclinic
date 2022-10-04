@@ -2,7 +2,7 @@ pipeline
 {
     agent 
     { 
-        label 'ubuntu-spc'
+        label 'ubuntu'
     }
     stages 
     {
@@ -20,7 +20,7 @@ pipeline
             {
                script
                { 
-                sh '/usr/share/maven/bin/mvn package'
+                sh '/usr/share/maven/bin/mvn clean package install test'
                }
             
             }
