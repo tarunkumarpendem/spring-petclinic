@@ -1,9 +1,8 @@
-node('ubuntu-spc') 
+node('ubuntu') 
 {
     stage('clone') 
     {
-    git branch: 'REL_1.0', 
-        credentialsId: 'Ubuntu-Node', 
+    git branch: 'REL_1.0',  
         url: 'https://github.com/tarunkumarpendem/spring-petclinic.git'
    }
    stage('package') 
