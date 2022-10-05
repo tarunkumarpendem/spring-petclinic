@@ -1,5 +1,18 @@
 pipeline
 {
+    parameters
+    {   
+        choice(name: 'choice_of_branch_to_build', 
+               choices: ['main', 'REL_1.0'], 
+               description: 'choose the branch')
+        string(name: 'Maven_Goal', 
+               defaultValue: 'package', 
+               description: 'select the maven goal')
+    }
+    triggers
+    {
+        pollSCM('* * * * *')
+    }
     agent 
     { 
         label 'ubuntu'
@@ -11,7 +24,7 @@ pipeline
             steps 
             {
                 git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git', 
-                    branch: 'REL_1.0'
+                    branch: "${params.choice_of_branch_to_build}"
             }
         }    
         stage('build')
@@ -20,7 +33,7 @@ pipeline
             {
                script
                { 
-                sh '/usr/share/maven/bin/mvn clean package install test'
+                sh "/usr/share/maven/bin/mvn ${params.Maven_Goal}"
                }
             
             }
