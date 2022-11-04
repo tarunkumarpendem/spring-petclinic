@@ -9,17 +9,17 @@ pipeline
                defaultValue: 'package', 
                description: 'select the maven goal')
     }
-    triggers
+    /*triggers
     {
         pollSCM('* * * * *')
-    }
+    }*/
     agent 
     { 
-        label 'ubuntu'
+        label 'python3.10'
     }
     stages 
     {
-        stage('package') 
+        stage('sonarqube') 
         {
             steps 
             {
@@ -31,10 +31,8 @@ pipeline
         {   
             steps
             {
-               script
-               { 
-                sh "/usr/share/maven/bin/mvn ${params.Maven_Goal}"
-               }
+               withSonarQubeEnv('sonarqube'){
+               sh 'mvn clean package sonar:sonar'
             
             }
               
