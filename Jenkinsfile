@@ -2,15 +2,18 @@ pipeline{
     agent {
         label 'python3.10'
     }
-    parameters{
+    /*parameters{
         choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
-    }
+    }*/
+    /*triggers{
+        pollSCM('* * * * *')
+    }*/
     post{
         always{
-            echo 'build completed for $env.BUILD_NUMBER'
+            echo 'build completed'
             mail to: 'tarunkumarpendem22@gmail.com',
                  subject: 'Job summary',
-                 body: "Build is completed for $env.BUILD_URL"
+                 body: """Build is completed for $env.BUILD_URL"""
         }
         failure{
             echo 'build failed'
@@ -32,22 +35,42 @@ pipeline{
         stage(clone){
             steps{
                 git url: 'https://github.com/spring-projects/spring-petclinic.git',
-                    branch: "${params.Branch_to_build}"
+                    branch: "main"
             }
         }    
         stage(build){
-            steps{
-                sh 'mvn clean install'
+          steps
+            {
+                withSonarQubeEnv('sonarqube') {
+                     sh "mvn clean install sonar:sonar"
+               }
             }
         }
-        stage('Archive_artifacts'){
-            steps{
-                archiveArtifacts artifacts: '**/target/*.jar', followSymlinks: false
+        stage ('Artifactory configuration') {
+            steps {
+                rtMavenDeployer (
+                    id: "jfrog",
+                    serverId: "jfrog",
+                    releaseRepo: 'libs-release-local',
+                    snapshotRepo: 'libs-snpshot-local'
+                )
             }
         }
-        stage('Junit'){
-            steps{
-                junit '**/surefire-reports/*.xml'
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: "MVN-3.6.3", // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: "jfrog"
+                )
+            }
+        }
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "jfrog"
+                )
             }
         }
     }
