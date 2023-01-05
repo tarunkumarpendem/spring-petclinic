@@ -1,42 +1,77 @@
-pipeline
-{
-    parameters
-    {   
-        choice(name: 'choice_of_branch_to_build', 
-               choices: ['main', 'REL_1.0'], 
-               description: 'choose the branch')
-        string(name: 'Maven_Goal', 
-               defaultValue: 'package', 
-               description: 'select the maven goal')
+pipeline{
+    agent {
+        label 'node-1'
     }
-    /*triggers
-    {
+    /*parameters{
+        choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
+    }*/
+    /*triggers{
         pollSCM('* * * * *')
     }*/
-    agent 
-    { 
-        label 'python3.10'
+    post{
+        always{
+            echo 'build completed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is completed for $env.BUILD_URL"""
+        }
+        failure{
+            echo 'build failed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is failed for $env.BUILD_NUMBER
+                          $env.BUILD_URL
+                          $env.BUILD_ID"""
+        }
+        success{
+            echo 'build is success'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is successfully completed for $env.BUILD_NUMBER
+                          $env.BUILD_URL"""
+        }
     }
-    stages 
-    {
-        stage('sonarqube') 
-        {
-            steps 
-            {
-                git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git', 
-                    branch: "${params.choice_of_branch_to_build}"
+    stages{
+        stage(clone){
+            steps{
+                git url: 'https://github.com/spring-projects/spring-petclinic.git',
+                    branch: "REL_1.0"
             }
         }    
-        stage('build')
-        {   
-            steps
+        stage(build){
+          steps
             {
-               withSonarQubeEnv('sonarqube'){
-               sh 'mvn clean package sonar:sonar'
-            
+                withSonarQubeEnv('sonarqube') {
+                     sh "mvn clean install sonar:sonar"
+               }
             }
-              
+        }
+        stage ('Artifactory configuration') {
+            steps {
+                rtMavenDeployer (
+                    id: "jfrog",
+                    serverId: "jfrog",
+                    releaseRepo: 'libs-release-local',
+                    snapshotRepo: 'libs-snpshot-local'
+                )
+            }
+        }
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: "MVN-3.6.3", // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: "jfrog"
+                )
+            }
+        }
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "jfrog"
+                )
+            }
         }
     }
 }
-
