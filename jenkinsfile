@@ -34,7 +34,7 @@ pipeline{
     stages{
         stage(clone){
             steps{
-                git url: 'https://github.com/spring-projects/spring-petclinic.git',
+                git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git',
                     branch: "REL_1.0"
             }
         }    
@@ -51,8 +51,8 @@ pipeline{
                 rtMavenDeployer (
                     id: "jfrog",
                     serverId: "jfrog",
-                    releaseRepo: 'libs-release-local',
-                    snapshotRepo: 'libs-snpshot-local'
+                    releaseRepo: 'test-libs-release-local',
+                    snapshotRepo: 'test-libs-snpshot-local'
                 )
             }
         }
