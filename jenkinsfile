@@ -76,7 +76,7 @@ pipeline{
                         else if (gitBranch.contains('test')) {
                            env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
                            env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
-                           docker build image -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}
+                           'docker image build -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}'
                         }
                         else {
                             echo "image build failed"
