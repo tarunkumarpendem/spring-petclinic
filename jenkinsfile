@@ -85,7 +85,7 @@ pipeline{
             }
         }
     }
-       post{
+       /*post{
         always{
             echo 'build completed'
             mail to: 'tarunkumarpendem22@gmail.com',
@@ -107,5 +107,5 @@ pipeline{
                  body: """Build is successfully completed for $env.BUILD_NUMBER
                           $env.BUILD_URL"""
         }
-    }     
+    }*/     
 }
