@@ -8,29 +8,6 @@ pipeline{
     /*triggers{
         pollSCM('* * * * *')
     }*/
-    post{
-        always{
-            echo 'build completed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is completed for $env.BUILD_URL"""
-        }
-        failure{
-            echo 'build failed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is failed for $env.BUILD_NUMBER
-                          $env.BUILD_URL
-                          $env.BUILD_ID"""
-        }
-        success{
-            echo 'build is success'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is successfully completed for $env.BUILD_NUMBER
-                          $env.BUILD_URL"""
-        }
-    }
     stages{
         stage(clone){
             steps{
@@ -72,6 +49,29 @@ pipeline{
                     serverId: "jfrog"
                 )
             }
+        }
+    }
+        post{
+        always{
+            echo 'build completed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is completed for $env.BUILD_URL"""
+        }
+        failure{
+            echo 'build failed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is failed for $env.BUILD_NUMBER
+                          $env.BUILD_URL
+                          $env.BUILD_ID"""
+        }
+        success{
+            echo 'build is success'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is successfully completed for $env.BUILD_NUMBER
+                          $env.BUILD_URL"""
         }
     }
 }
