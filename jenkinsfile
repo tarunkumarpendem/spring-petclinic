@@ -1,4 +1,4 @@
-pipeline{
+/*pipeline{
     agent {
         label 'node-1'
     }
@@ -8,7 +8,7 @@ pipeline{
     /*triggers{
         pollSCM('* * * * *')
     }*/
-    post{
+    /*post{
         always{
             echo 'build completed'
             mail to: 'tarunkumarpendem22@gmail.com',
@@ -49,7 +49,7 @@ pipeline{
             }
         }
     }
-}
+}*/
 
 
 
@@ -64,7 +64,28 @@ pipeline{
     /*triggers{
         pollSCM('* * * * *')
     }*/
-    post{
+    stages{
+        stage('image build and push to jfrog'){
+            steps{
+                script{
+                    def RES = "jan2k23.jfrog.io/docker-docker/"
+                    def appname = spring-petclinic
+                        if (gitBranch.contains('docker')) {
+                        docker build image -t ${RES}-${appname}:${BUILD_NUMBER} .
+                        }
+                        else if (gitBranch.contains('test')) {
+                           env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
+                           env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
+                           docker build image -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}
+                        }
+                        else {
+                            echo "image build failed"
+                     }
+                }
+            }
+        }
+    }
+       post{
         always{
             echo 'build completed'
             mail to: 'tarunkumarpendem22@gmail.com',
@@ -86,33 +107,5 @@ pipeline{
                  body: """Build is successfully completed for $env.BUILD_NUMBER
                           $env.BUILD_URL"""
         }
-    }
-    stages{
-        stage(clone){
-            steps{
-                git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git',
-                    branch: "docker"
-            }
-        }
-        stage('image build and push to jfrog'){
-            steps{
-                script{
-                    def RES = "jan2k23.jfrog.io/docker-docker/"
-                    def appname = spring-petclinic
-                        if (gitBranch.contains('docker')) {
-                        docker build image -t ${RES}-${appname}:${BUILD_NUMBER}
-                        }
-                        else if (gitBranch.contains('test')) {
-                           env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
-                           env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
-                           docker build image -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}
-                        }
-                        else {
-                            echo "image build failed"
-                     }
-                }
-            }
-        }
     }     
 }
-docker tag <IMAGE_ID> jan2k23.jfrog.io/docker-docker/<DOCKER_IMAGE>:<DOCKER_TAG>
