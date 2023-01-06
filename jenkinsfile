@@ -35,42 +35,17 @@ pipeline{
         stage(clone){
             steps{
                 git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git',
-                    branch: "REL_1.0"
-            }
-        }    
-        stage(build){
-          steps
-            {
-                withSonarQubeEnv('sonarqube') {
-                     sh "mvn clean install sonar:sonar"
-               }
+                    branch: "docker"
             }
         }
-        stage ('Artifactory configuration') {
-            steps {
-                rtMavenDeployer (
-                    id: "jfrog",
-                    serverId: "jfrog",
-                    releaseRepo: 'test-libs-release-local',
-                    snapshotRepo: 'test-libs-snpshot-local'
-                )
-            }
-        }
-        stage ('Exec Maven') {
-            steps {
-                rtMavenRun (
-                    tool: "mvn-3.6.3", // Tool name from Jenkins configuration
-                    pom: 'pom.xml',
-                    goals: 'clean install',
-                    deployerId: "jfrog"
-                )
-            }
-        }
-        stage ('Publish build info') {
-            steps {
-                rtPublishBuildInfo (
-                    serverId: "jfrog"
-                )
+        stage('docker image build'){
+            steps{
+                // pushing the image to jfrog artifactory
+                sh """
+                      docker image build -t spc:2.0 .
+                      docker tag spc:2.0 jan2k23.jfrog.io/docker-docker/spc:2.0
+                      docker push jan2k23.jfrog.io/docker-docker/spc:2.0
+                    """  
             }
         }
     }
