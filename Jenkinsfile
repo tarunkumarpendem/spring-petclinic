@@ -1,6 +1,6 @@
 pipeline{
-    agent {
-        label 'python3.10'
+    agent{
+        label 'node-1'
     }
     /*parameters{
         choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
@@ -8,7 +8,28 @@ pipeline{
     /*triggers{
         pollSCM('* * * * *')
     }*/
-    post{
+    stages{
+        stage('image build and push to jfrog'){
+            steps{
+                script{
+                    def RES = "jan2k23.jfrog.io/docker-docker/"
+                    def appname = "spring-petclinic"
+                        if (gitBranch.contains('docker')) {
+                           'docker image build -t ${RES}-${appname}:${BUILD_NUMBER} .'
+                        }
+                        else if (gitBranch.contains('test')) {
+                           env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
+                           env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
+                           'docker image build -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}'
+                        }
+                        else {
+                            echo "image build failed"
+                     }
+                }
+            }
+        }
+    }
+       /*post{
         always{
             echo 'build completed'
             mail to: 'tarunkumarpendem22@gmail.com',
@@ -30,48 +51,5 @@ pipeline{
                  body: """Build is successfully completed for $env.BUILD_NUMBER
                           $env.BUILD_URL"""
         }
-    }
-    stages{
-        stage(clone){
-            steps{
-                git url: 'https://github.com/spring-projects/spring-petclinic.git',
-                    branch: "main"
-            }
-        }    
-        stage(build){
-          steps
-            {
-                withSonarQubeEnv('sonarqube') {
-                     sh "mvn clean install sonar:sonar"
-               }
-            }
-        }
-        stage ('Artifactory configuration') {
-            steps {
-                rtMavenDeployer (
-                    id: "jfrog",
-                    serverId: "jfrog",
-                    releaseRepo: 'libs-release-local',
-                    snapshotRepo: 'libs-snpshot-local'
-                )
-            }
-        }
-        stage ('Exec Maven') {
-            steps {
-                rtMavenRun (
-                    tool: "MVN-3.6.3", // Tool name from Jenkins configuration
-                    pom: 'pom.xml',
-                    goals: 'clean install',
-                    deployerId: "jfrog"
-                )
-            }
-        }
-        stage ('Publish build info') {
-            steps {
-                rtPublishBuildInfo (
-                    serverId: "jfrog"
-                )
-            }
-        }
-    }
+    }*/     
 }
