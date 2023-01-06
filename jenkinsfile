@@ -69,9 +69,9 @@ pipeline{
             steps{
                 script{
                     def RES = "jan2k23.jfrog.io/docker-docker/"
-                    def appname = spring-petclinic
+                    def appname = "spring-petclinic"
                         if (gitBranch.contains('docker')) {
-                        docker build image -t ${RES}-${appname}:${BUILD_NUMBER} .
+                           'docker image build -t ${RES}-${appname}:${BUILD_NUMBER} .'
                         }
                         else if (gitBranch.contains('test')) {
                            env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
