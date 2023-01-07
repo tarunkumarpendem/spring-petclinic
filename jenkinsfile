@@ -1,6 +1,6 @@
 pipeline{
     agent {
-        label 'python3.10'
+        label 'node-1'
     }
     /*parameters{
         choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
