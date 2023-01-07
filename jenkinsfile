@@ -2,9 +2,9 @@ pipeline{
     agent {
         label 'node-1'
     }
-    parameters{
+    /*parameters{
         choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
-    }
+    }*/
     /*triggers{
         pollSCM('* * * * *')
     }*/
