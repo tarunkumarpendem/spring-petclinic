@@ -10,12 +10,13 @@ FROM ubuntu:20.04
 LABEL author="Tarun"
 LABEL app="spring-petclinic"
 RUN apt update && \
-    apt install openjdk-11-jdk maven -y && \
+    apt install openjdk-11-jdk git maven -y && \
     git clone https://github.com/tarunkumarpendem/spring-petclinic.git && \
     cd spring-petclinic  
 ARG branch=docker
 RUN git checkout ${branch} && \  
     mvn clean install
 EXPOSE 8080
+CMD [ "java", "-jar". "/spring-petclinic-2.7.3.jar" ]
 
 

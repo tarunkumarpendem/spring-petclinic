@@ -15,7 +15,6 @@ pipeline {
                     def IMAGE_NAME_2 = "alpine"
                     def IMAGE_NAME_3 = "httpd"
                     if (params ['Image_type'] == "base_image" ){
-                        
                         sh """
                         docker image pull ${IMAGE_NAME_1}
                         docker image tag ${IMAGE_NAME_1} ${REG}/${IMAGE_NAME_1}:${params.Image_type}-${BUILD_NUMBER}
@@ -45,6 +44,29 @@ pipeline {
                     }         
                 }
             }
+        }
+    }
+    post{
+        always{
+            echo 'build completed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is completed for $env.BUILD_URL"""
+        }
+        failure{
+            echo 'build failed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is failed for $env.BUILD_NUMBER
+                          $env.BUILD_URL
+                          $env.BUILD_ID"""
+        }
+        success{
+            echo 'build is success'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is successfully completed for $env.BUILD_NUMBER
+                          $env.BUILD_URL"""
         }
     }
 }
@@ -121,7 +143,30 @@ pipeline{
                 }
             }
         }
-    }        
+    } 
+    post{
+        always{
+            echo 'build completed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is completed for $env.BUILD_URL"""
+        }
+        failure{
+            echo 'build failed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is failed for $env.BUILD_NUMBER
+                          $env.BUILD_URL
+                          $env.BUILD_ID"""
+        }
+        success{
+            echo 'build is success'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is successfully completed for $env.BUILD_NUMBER
+                          $env.BUILD_URL"""
+        }
+    }       
 }
 
 
