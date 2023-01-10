@@ -2,33 +2,77 @@ pipeline{
     agent{
         label 'node-1'
     }
-    /*parameters{
-        choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
-    }*/
+    parameters{
+        choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0', 'docker', 'test'], description: 'selecting branch to build')
+        choice(name: 'Image_type', choices: ['base_image', 'infra_image', 'test_image', 'none'], description: 'Selecting image build type')
+    }
     /*triggers{
         pollSCM('* * * * *')
     }*/
     stages{
-        stage('image build and push to jfrog'){
+        stage('pull'){
+            steps{
+                sh """
+                      docker image pull ubuntu:20.04
+                      docker image tag ubuntu:20.04 jan2k23.jfrog.io/docker-docker/ubuntu:20.04-jfrog
+                      docker push jan2k23.jfrog.io/docker-docker/ubuntu:20.04-jfrog
+                    """  
+            }
+        }
+        stage('image tagging'){
             steps{
                 script{
-                    def RES = "jan2k23.jfrog.io/docker-docker/"
-                    def appname = "spring-petclinic"
-                        if (gitBranch.contains('docker')) {
-                           'docker image build -t ${RES}-${appname}:${BUILD_NUMBER} .'
-                        }
-                        else if (gitBranch.contains('test')) {
-                           env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
-                           env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
-                           'docker image build -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}'
-                        }
-                        else {
-                            echo "image build failed"
-                     }
+                    def REG = "jan2k23.jfrog.io/docker-docker"
+                    def IMAGE_NAME_1 = "nginx"
+                    def IMAGE_NAME_2 = "alpine"
+                    if (!env.BRANCH_NAME.contains('docker')) {
+                            "docker image pull ${IMAGE_NAME_1}"
+                            "docker image tag ${IMAGE_NAME_1} ${REG}/${IMAGE_NAME_1}:${BUILD_NUMBER}"
+                    } 
+                    else if (!env.BRANCH_NAME.contains('test')){
+                            "docker image pull ${IMAGE_NAME_2}"
+                            "docker image tag ${IMAGE_NAME_2} ${REG}/${IMAGE_NAME_2}:${BUILD_ID}-${BUILD_NUMBER}"
+                    } 
+                    else {
+                        echo image tagging failed
+                    }         
                 }
             }
         }
-    }
+    }        
+}
+
+
+
+
+
+
+
+
+
+
+
+// stages{
+    //     stage('image build and push to jfrog'){
+    //         steps{
+    //             script{
+    //                 def RES = "jan2k23.jfrog.io/docker-docker/"
+    //                 def appname = "spring-petclinic"
+    //                     if (gitBranch.contains('docker')) {
+    //                        'docker image build -t ${RES}-${appname}:${BUILD_NUMBER} .'
+    //                     }
+    //                     else if (gitBranch.contains('test')) {
+    //                        env.extractbranch = gitBranch.sampleprinter("/")[0].toLowerCase()
+    //                        env.extractbranch1 = gitBranch.sampleprinter("/")[1].toLowerCase()
+    //                        'docker image build -t ${RES}-${appname}:${extractbranch}-${extractbranch1}-${BUILD_NUMBER}'
+    //                     }
+    //                     else {
+    //                         echo "image build failed"
+    //                  }
+    //             }
+    //         }
+    //     }
+    // }
        /*post{
         always{
             echo 'build completed'
@@ -51,7 +95,4 @@ pipeline{
                  body: """Build is successfully completed for $env.BUILD_NUMBER
                           $env.BUILD_URL"""
         }
-    }*/     
-}
-
-
+    }*/
