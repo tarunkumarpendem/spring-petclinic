@@ -8,29 +8,6 @@ pipeline{
     /*triggers{
         pollSCM('* * * * *')
     }*/
-    post{
-        always{
-            echo 'build completed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is completed for $env.BUILD_URL"""
-        }
-        failure{
-            echo 'build failed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is failed for $env.BUILD_NUMBER
-                          $env.BUILD_URL
-                          $env.BUILD_ID"""
-        }
-        success{
-            echo 'build is success'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is successfully completed for $env.BUILD_NUMBER
-                          $env.BUILD_URL"""
-        }
-    }
     stages{
         stage(clone){
             steps{
@@ -56,8 +33,8 @@ pipeline{
         stage ('Artifactory configuration') {
             steps {
                 rtMavenDeployer (
-                    id: "jfrog",
-                    serverId: "jfrog",
+                    id: "jfrog-deployer-id",
+                    serverId: "jfrog-server-id",
                     releaseRepo: 'test-libs-release-local',
                     snapshotRepo: 'test-libs-snpshot-local'
                 )
@@ -66,19 +43,43 @@ pipeline{
         stage ('Exec Maven') {
             steps {
                 rtMavenRun (
-                    tool: "mvn-3.6.3", // Tool name from Jenkins configuration
+                    tool: "maven", // Tool name from Jenkins configuration
                     pom: 'pom.xml',
                     goals: 'clean install',
-                    deployerId: "jfrog"
+                    deployerId: "jfrog-deployer-id"
                 )
             }
         }
         stage ('Publish build info') {
             steps {
                 rtPublishBuildInfo (
-                    serverId: "jfrog"
+                    serverId: "jfrog-server-id"
                 )
             }
+        }
+    }
+    post{
+        always{
+            echo 'build completed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is completed for $env.BUILD_URL"""
+        }
+        failure{
+            echo 'build failed'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is failed for $env.BUILD_NUMBER
+                          $env.BUILD_URL
+                          $env.BUILD_ID"""
+        }
+        success{
+            junit '**/surefire-reports/*.xml'
+            echo 'build is success'
+            mail to: 'tarunkumarpendem22@gmail.com',
+                 subject: 'Job summary',
+                 body: """Build is successfully completed for $env.BUILD_NUMBER
+                          $env.BUILD_URL"""
         }
     }
 }
