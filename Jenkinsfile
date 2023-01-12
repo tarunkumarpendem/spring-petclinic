@@ -7,7 +7,7 @@ pipeline {
         choice(name: 'Image_type', choices: ['base_image', 'infra_image', 'test_image', 'none','image'], description: 'Selecting image build type')
     }
     stages {
-        stage('Hello') {
+        stage('image build') {
             steps {
                 script{
                     def REG = "jan2k23.jfrog.io/docker-docker"
@@ -62,6 +62,7 @@ pipeline {
                           $env.BUILD_ID"""
         }
         success{
+            junit '**/surefire-reports/*.xml'
             echo 'build is success'
             mail to: 'tarunkumarpendem22@gmail.com',
                  subject: 'Job summary',
