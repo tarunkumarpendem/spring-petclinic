@@ -10,4 +10,6 @@ RUN apt update && \
     cd spring-petclinic && \
     git checkout ${branch} && \
     mvn clean package
+WORKDIR /spring-petclinic    
 EXPOSE 8080 
+CMD ["java", "-jar", "target/spring-petclinic-2.7.3.jar"]
