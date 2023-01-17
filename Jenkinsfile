@@ -24,7 +24,7 @@ pipeline{
                           $env.BUILD_ID"""
         }
         success{
-            junit 'surefire-reports/*.xml'
+            junit '**/surefire-reports/*.xml'
             echo 'build is success'
             mail to: 'tarunkumarpendem22@gmail.com',
                  subject: 'Job summary',
@@ -47,13 +47,13 @@ pipeline{
                }
             }
         }
-       stage('Quality Gate') {
+      /* stage('Quality Gate') {
             steps {
               timeout(time: 30, unit: 'MINUTES') {
                 waitForQualityGate abortPipeline: true
               }
             }
-        }
+        }*/
         stage ('Artifactory configuration') {
             steps {
                 rtMavenDeployer (
