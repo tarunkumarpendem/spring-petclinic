@@ -59,8 +59,8 @@ pipeline{
                 rtMavenDeployer (
                     id: "jfrog-id-deployer-id",
                     serverId: "jfrog-server-id",
-                    releaseRepo: 'test-libs-release-local',
-                    snapshotRepo: 'test-libs-snpshot-local'
+                    releaseRepo: 'test-libs-release',
+                    snapshotRepo: 'test-libs-snapshot'
                 )
             }
         }
