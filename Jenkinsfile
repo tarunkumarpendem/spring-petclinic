@@ -47,7 +47,7 @@ pipeline{
                }
             }
         }
-      /* stage('Quality Gate') {
+        /*stage('Quality Gate') {
             steps {
               timeout(time: 30, unit: 'MINUTES') {
                 waitForQualityGate abortPipeline: true
@@ -59,8 +59,8 @@ pipeline{
                 rtMavenDeployer (
                     id: "jfrog-id-deployer-id",
                     serverId: "jfrog-server-id",
-                    releaseRepo: 'test-libs-release',
-                    snapshotRepo: 'test-libs-snapshot'
+                    releaseRepo: 'maven',
+                    snapshotRepo: 'maven'
                 )
             }
         }
