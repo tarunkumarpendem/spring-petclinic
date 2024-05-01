@@ -22,11 +22,11 @@ pipeline{
                 script{
                     pom = readMavenPom file: "pom.xml";
                     filesByGlob = findFiles(glob: "target/*.jar");
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
-                    artifactPath = filesByGlob[0].path;
-                    artifactExists = fileExists artifactPath;
-                    if(artifactExists) {
-                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
+                    // echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    // artifactPath = filesByGlob[0].path;
+                    // artifactExists = fileExists artifactPath;
+                    // if(artifactExists) {
+                    //     echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
                         nexusArtifactUploader(
                             nexusVersion: 'nexus3',
                             protocol: 'http',
@@ -45,11 +45,8 @@ pipeline{
                                 file: "pom.xml",
                                 type: "pom"]
                             ]
-                        );
+                        )
                     } 
-                    else {
-                        error "*** File: ${artifactPath}, could not be found";
-                    }
                 }
             }
         }
