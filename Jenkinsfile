@@ -6,7 +6,7 @@ pipeline{
         pollSCM('* * * * *')
     }
     stages{
-        stageI('clone'){
+        stage('clone'){
             steps{
                 git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git',
                     branch: 'nexus'
