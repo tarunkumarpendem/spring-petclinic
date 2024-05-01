@@ -14,7 +14,7 @@ pipeline{
         }
         stage('build'){
             steps{
-                sh "./mvnw clean packge"
+                sh "./mvnw clean package"
             }
         }
         // stage('nexus'){
