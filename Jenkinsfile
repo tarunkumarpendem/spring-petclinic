@@ -1,84 +1,56 @@
 pipeline{
-    agent {
-        label 'node-1'
+    agent{
+        label 'nexus'
     }
-    parameters{
-        choice(name: 'Branch_to_build', choices: ['main', 'REL_1.0'], description: 'selecting branch to build')
-    }
-    /*triggers{
+    triggers{
         pollSCM('* * * * *')
-    }*/
-    post{
-        always{
-            echo 'build completed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is completed for $env.BUILD_URL"""
-        }
-        failure{
-            echo 'build failed'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is failed for $env.BUILD_NUMBER
-                          $env.BUILD_URL
-                          $env.BUILD_ID"""
-        }
-        success{
-            junit '**/surefire-reports/*.xml'
-            echo 'build is success'
-            mail to: 'tarunkumarpendem22@gmail.com',
-                 subject: 'Job summary',
-                 body: """Build is successfully completed for $env.BUILD_NUMBER
-                          $env.BUILD_URL"""
-        }
     }
     stages{
-        stage(clone){
+        stageI('clone'){
             steps{
                 git url: 'https://github.com/tarunkumarpendem/spring-petclinic.git',
-                    branch: "${params.Branch_to_build}"
-            }
-        }    
-        stage(build){
-          steps
-            {
-                withSonarQubeEnv('sonarqube') {
-                     sh "mvn package sonar:sonar"
-               }
+                    branch: 'nexus'
             }
         }
-        /*stage('Quality Gate') {
-            steps {
-              timeout(time: 30, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
-              }
-            }
-        }*/
-        stage ('Artifactory configuration') {
-            steps {
-                rtMavenDeployer (
-                    id: "jfrog-id-deployer-id",
-                    serverId: "jfrog-server-id",
-                    releaseRepo: 'maven',
-                    snapshotRepo: 'maven'
-                )
+        stage('build'){
+            steps{
+                sh "./mvnw clean packge"
             }
         }
-        stage ('Exec Maven') {
-            steps {
-                rtMavenRun (
-                    tool: "maven", // Tool name from Jenkins configuration
-                    pom: 'pom.xml',
-                    goals: 'clean install',
-                    deployerId: "jfrog-id-deployer-id"
-                )
-            }
-        }
-        stage ('Publish build info') {
-            steps {
-                rtPublishBuildInfo (
-                    serverId: "jfrog-server-id"
-                )
+        stage('nexus'){
+            steps{
+                script{
+                    pom = readMavenPom file: "pom.xml";
+                    filesByGlob = findFiles(glob: "target/*.jar");
+                    echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
+                    artifactPath = filesByGlob[0].path;
+                    artifactExists = fileExists artifactPath;
+                    if(artifactExists) {
+                        echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}";
+                        nexusArtifactUploader(
+                            nexusVersion: 'nexus3',
+                            protocol: 'http',
+                            nexusUrl: "54.160.120.122:8081",
+                            groupId: pom.groupId,
+                            version: pom.version,
+                            repository: "jenkins-maven-nexus",
+                            credentialsId: "NEXUS",
+                            artifacts: [
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: artifactPath,
+                                type: pom.packaging],
+                                [artifactId: pom.artifactId,
+                                classifier: '',
+                                file: "pom.xml",
+                                type: "pom"]
+                            ]
+                        );
+                    } 
+                    else {
+                        error "*** File: ${artifactPath}, could not be found";
+                    }
+                }
             }
         }
     }
