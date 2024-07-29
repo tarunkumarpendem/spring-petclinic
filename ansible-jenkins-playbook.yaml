@@ -1,5 +1,5 @@
 ---
-- name: Test Connectivity
+- name: Test Connectivity to node server
   hosts: node
   tasks:
     - name: Ping Node Server
