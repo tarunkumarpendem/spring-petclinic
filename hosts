@@ -1,0 +1,7 @@
+[node]
+node-server ansible_host=172.31.51.32
+
+[all:vars]
+ansible_ssh_private_key_file=~/.ssh/Ohio.pem
+ansible_user=ubuntu
+ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -i ~/.ssh/Ohio.pem ubuntu@18.119.121.232"'
